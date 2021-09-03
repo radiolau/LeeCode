@@ -5,7 +5,7 @@ package main
  */
 
 type ListNode struct {
-	Var int
+	Val  int
 	Next *ListNode
 }
 
@@ -13,48 +13,55 @@ type ListNode struct {
 链表逆序 => 队列；
  */
 func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
-	var newList *ListNode = nil
+	if nil == l1 && nil == l2 {
+		return nil
+	}
 
+	var sumList *ListNode = nil
 	l1 = linkReverse(l1, nil)
 	l2 = linkReverse(l2, nil)
 
-	if l1 != nil || l2 != nil {
-		var lastDiv = 0
-		var mod = 0
-		for ; ; {
-			mod, lastDiv = addByLink(l1, l2, lastDiv)
-			var node = new(ListNode)
-			node.Var = mod
-			node.Next = nil
-			newList.Next = node
+	var tmpPtr = sumList
+	var node *ListNode = nil
+	var lastDiv = 0
+	var mod = 0
+	for ; ; {
+		if (nil == l1) && (nil == l2) && (0 == lastDiv) {
+			break
+		}
 
-			if l1.Next != nil || l2.Next != nil {
-				if nil != l1.Next {
-					l1 = l1.Next
-				}
-				if nil != l2.Next {
-					l2 = l2.Next
-				}
-			} else {
-				break
-			}
+		mod, lastDiv = addByLink(l1, l2, lastDiv)
+		node = new(ListNode)
+		node.Val = mod
+		node.Next = nil
+
+		if nil == tmpPtr {
+			sumList = node
+			tmpPtr = sumList
+		} else {
+			tmpPtr.Next = node
+			tmpPtr = tmpPtr.Next
+		}
+
+		if nil != l1 {
+			l1 = l1.Next
+		}
+		if nil != l2 {
+			l2 = l2.Next
 		}
 	}
 
-	return newList
+	return sumList
 }
 
 func addByLink(l1 *ListNode, l2 *ListNode, lastDiv int) (mod int, div int) {
 	var sum = lastDiv
-
 	if nil != l1 {
-		sum += l1.Var
+		sum += l1.Val
 	}
-
 	if nil != l2 {
-		sum += l2.Var
+		sum += l2.Val
 	}
-
 	return sum % 10, sum / 10
 }
 
@@ -63,38 +70,66 @@ func addByLink(l1 *ListNode, l2 *ListNode, lastDiv int) (mod int, div int) {
 */
 func linkReverse(headNode *ListNode, lastNode *ListNode) *ListNode {
 	if nil == headNode {
-		//println("end")
+		return headNode
+	}
+
+	if nil == headNode.Next {
+		headNode.Next = lastNode
 		return headNode
 	}
 
 	var stgPtr = headNode.Next
 	headNode.Next = lastNode
 	lastNode = headNode
-
-	//printLink(headNode)
 	return linkReverse(stgPtr, lastNode)
 }
 
-func printLink(head *ListNode)  {
+func printList(head *ListNode)  {
 	for ; head != nil;  {
-		print( " ", head.Var)
+		print( " ", head.Val)
 		head = head.Next
 	}
 	println()
+	//println("end of print link list")
+}
+
+func createLinkListByArray(nums []int) *ListNode {
+	var list *ListNode = nil
+	var tmpNode *ListNode = nil
+	var i = 0
+	//println("len : ", len(nums))
+	for ; i < len(nums); i++ {
+		var node = new(ListNode)
+		node.Val = nums[i]
+		node.Next = nil
+		if nil == list {
+			list = node
+			tmpNode = list
+		} else {
+			tmpNode.Next = node
+			tmpNode = tmpNode.Next
+		}
+	}
+
+	return list
 }
 
 func main() {
-	var A = ListNode{Var: 3, Next: nil}
-	var B = ListNode{Var: 1, Next: nil}
-	var C = ListNode{Var: 5, Next: nil}
-	var D = ListNode{Var: 3, Next: nil}
-	var E = ListNode{Var: 9, Next: nil}
-	A.Next = &B
-	B.Next = &C
-	C.Next = &D
-	D.Next = &E
 
-	//printLink(&A)
+	var l1, l2, sumList *ListNode
 
-	printLink(linkReverse(&A, nil))
+	l1 = createLinkListByArray([]int {2, 4, 3})
+	l2 = createLinkListByArray([]int {5, 6, 4})
+	sumList = addTwoNumbers(l1, l2)
+	printList(sumList)
+
+	l1 = createLinkListByArray([]int {0})
+	l2 = createLinkListByArray([]int {0})
+	sumList = addTwoNumbers(l1, l2)
+	printList(sumList)
+
+	l1 = createLinkListByArray([]int {9,9,9,9,9,9,9})
+	l2 = createLinkListByArray([]int {9,9,9,9})
+	sumList = addTwoNumbers(l1, l2)
+	printList(sumList)
 }
